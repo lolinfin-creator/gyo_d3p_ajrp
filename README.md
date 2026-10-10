@@ -1,33 +1,49 @@
-# `ros2_py_template` package
-ROS 2 python package.  [![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5)](https://docs.ros.org/en/humble/)
-## Packages and build
+# target_follower
 
-It is assumed that the workspace is `~/ros2_ws/`.
+ROS 2 Python package, amely egy szimulált célpontot generál és egy követő node-dal irányítási parancsokat számol hozzá.
 
-### Clone the packages
-``` r
+## Csomag felépítése
+
+A package két node-ból áll:
+
+- **`target_node`**: másodpercenként egy véletlenszerűen "elsétáló" 2D célpontot (`geometry_msgs/Point`) publikál a `/target_position` topicon.
+- **`follower_node`**: feliratkozik a `/target_position` topicra, kiszámolja a saját (fix) pozíciójától vett távolságot és szöget a célponthoz, majd ebből egy `geometry_msgs/Twist` vezérlési parancsot publikál a `/cmd_vel` topicon.
+
+## Node-topic kapcsolatok
+
+```mermaid
+graph LR
+    A["/target_node"] -->|/target_position<br/>geometry_msgs/Point| B["/follower_node"]
+    B -->|/cmd_vel<br/>geometry_msgs/Twist| C[("robot / szimuláció")]
+```
+
+## Build
+
+Workspace: `~/ros2_ws/`
+
+```bash
 cd ~/ros2_ws/src
-```
-``` r
-git clone https://github.com/sze-info/ros2_py_template
-```
-
-### Build ROS 2 packages
-``` r
+git clone https://github.com/lolinfin-creator/gyo_d3p_ajrp.git
 cd ~/ros2_ws
-```
-``` r
-colcon build --packages-select ros2_py_template --symlink-install
+colcon build --packages-select target_follower --symlink-install
+source install/setup.bash
 ```
 
-<details>
-<summary> Don't forget to source before ROS commands.</summary>
+## Futtatás
 
-``` bash
-source ~/ros2_ws/install/setup.bash
+```bash
+ros2 launch target_follower target_follower.launch.py
 ```
-</details>
 
-``` r
-ros2 launch ros2_py_template launch_example1.launch.py
-```
+Ez elindítja mindkét node-ot. A terminálban váltakozva láthatók a célpont pozíciói és a követő node által számolt távolság/szög értékek.
+
+## Üzenettípusok
+
+| Topic | Típus | Publisher | Subscriber |
+|---|---|---|---|
+| `/target_position` | `geometry_msgs/Point` | `target_node` | `follower_node` |
+| `/cmd_vel` | `geometry_msgs/Twist` | `follower_node` | — |
+
+## Megvalósítás
+
+ROS 2 Humble alatt, Ubuntu 22.04 (WSL2) környezetben.

@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 from glob import glob
 import os
 
-package_name = 'ros2_py_template'
+package_name = 'target_follower'
 
 setup(
     name=package_name,
@@ -18,12 +18,13 @@ setup(
     zip_safe=True,
     maintainer='todo',
     maintainer_email='todo@todo.com',
-    description='TODO: Package description',
+    description='Target tracking ROS 2 package with target and follower nodes',
     license='GNU General Public License v3.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 'control_vehicle = ros2_py_template.control_vehicle:main',
+            'target_node = target_follower.target_node:main',
+            'follower_node = target_follower.follower_node:main',
         ],
     },
 )
